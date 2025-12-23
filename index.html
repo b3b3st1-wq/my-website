@@ -1,109 +1,94 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<title>b3b3 store</title>
-
-<style>
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: Arial, sans-serif;
-}
-
-body{
-  height:100vh;
-  background: radial-gradient(circle at bottom, #0a1a3a, #000814);
-  overflow:hidden;
-  color:white;
-}
-
-/* stars */
-body::before{
-  content:"";
-  position:absolute;
-  inset:0;
-  background:url("https://i.imgur.com/7b1bZQx.png");
-  animation: stars 60s linear infinite;
-  opacity:.5;
-}
-
-@keyframes stars{
-  from{background-position:0 0;}
-  to{background-position:-2000px 2000px;}
-}
-
-/* snow */
-.snow{
-  position:absolute;
-  top:-10px;
-  width:6px;
-  height:6px;
-  background:white;
-  border-radius:50%;
-  opacity:.8;
-  animation: fall linear infinite;
-}
-
-@keyframes fall{
-  to{
-    transform: translateY(110vh);
-  }
-}
-
-header{
-  position:absolute;
-  top:30px;
-  width:100%;
-  text-align:center;
-  font-size:22px;
-  letter-spacing:3px;
-  opacity:.9;
-}
-
-.center{
-  height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-.enter{
-  font-size:120px;
-  font-weight:bold;
-  text-decoration:none;
-  color:white;
-  letter-spacing:10px;
-  text-shadow:0 0 20px rgba(255,255,255,.8);
-  transition:.3s;
-}
-
-.enter:hover{
-  transform:scale(1.1);
-  text-shadow:0 0 40px white;
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>موقعي العصري مثل TikTok</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #000; /* خلفية داكنة مثل TikTok */
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow-y: scroll;
+            scroll-snap-type: y mandatory;
+        }
+        .section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            scroll-snap-align: start;
+            background: linear-gradient(45deg, #ff0050, #00f2ea); /* تدرج ألوان عصري */
+            position: relative;
+        }
+        .section h1 {
+            font-size: 3em;
+            text-align: center;
+            animation: fadeIn 2s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .products {
+            /* قسم فارغ للمنتجات - أضف محتواك هنا */
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 20px;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            background-color: #111;
+        }
+    </style>
 </head>
-
 <body>
+    <div class="container">
+        <!-- قسم الترحيب -->
+        <div class="section">
+            <h1>مرحبا بك في موقعي العصري!</h1>
+            <p>تصميم سريع وديناميكي مثل TikTok.</p>
+        </div>
+        
+        <!-- قسم المنتجات الفارغ -->
+        <div class="section">
+            <div class="products">
+                <!-- هنا المكان الفارغ للمنتجات - أضف صور، أسماء، أسعار، إلخ -->
+                <h2>المنتجات</h2>
+                <!-- مثال: <div class="product"><img src="product1.jpg" alt="منتج 1"><p>وصف المنتج</p></div> -->
+                <!-- أضف منتجاتك هنا -->
+            </div>
+        </div>
+        
+        <!-- قسم آخر للإلهام -->
+        <div class="section">
+            <h1>استمتع بالتصفح!</h1>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>© 2023 موقعي. جميع الحقوق محفوظة.</p>
+    </div>
 
-<header>b3b3 store</header>
-
-<div class="center">
-  <a href="#" class="enter">ENTER</a>
-</div>
-
-<script>
-for(let i=0;i<80;i++){
-  let snow=document.createElement("div");
-  snow.className="snow";
-  snow.style.left=Math.random()*100+"vw";
-  snow.style.animationDuration=5+Math.random()*5+"s";
-  snow.style.opacity=Math.random();
-  document.body.appendChild(snow);
-}
-</script>
-
+    <script>
+        // JavaScript بسيط لجعل التمرير أكثر سلاسة مثل TikTok
+        document.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            window.scrollBy({
+                top: e.deltaY > 0 ? window.innerHeight : -window.innerHeight,
+                behavior: 'smooth'
+            });
+        });
+    </script>
 </body>
 </html>
