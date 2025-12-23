@@ -1,0 +1,91 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Arial', sans-serif;
+}
+
+/* خلفية الهيرو مثل الفيديو */
+.hero {
+    height: 100vh;
+    background: url('https://images.unsplash.com/photo-1558769132-cb1aea458c5e?q=80&w=1974') no-repeat center center/cover;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.overlay {
+    text-align: center;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px;
+}
+
+/* القائمة الجانبية المودرن */
+.side-nav {
+    position: absolute;
+    left: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.side-nav ul {
+    list-style: none;
+}
+
+.side-nav ul li a {
+    color: white;
+    text-decoration: none;
+    font-size: 1.5rem;
+    display: block;
+    margin: 10px 0;
+    transition: 0.3s;
+}
+
+.side-nav ul li a:hover {
+    letter-spacing: 2px;
+}
+
+/* شبكة المنتجات */
+.products {
+    padding: 50px;
+    background: #f9f9f9;
+}
+
+.product-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 30px;
+    margin-top: 30px;
+}
+
+.product-card {
+    background: white;
+    padding: 15px;
+    text-align: center;
+    border: 1px solid #eee;
+    transition: 0.3s;
+}
+
+.product-card:hover {
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+.product-card img {
+    width: 100%;
+    height: auto;
+}
+
+.add-btn {
+    background: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.add-btn:hover {
+    background: #333;
+}
