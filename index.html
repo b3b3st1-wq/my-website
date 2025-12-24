@@ -1,605 +1,1858 @@
-<!DOCTYPE html>
-<html lang="en">
+htmlDownloadCopy code<!DOCTYPE html>
+<html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LOCAL BRAND - Winter</title>
-    
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500&family=Montserrat:wght@200;300;400&display=swap" rel="stylesheet">
-    
-    <!-- Three.js -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="color-scheme" content="dark" />
+  <title>بوابة الشتاء • Enter</title>
+  <style>
+    :root{
+      --bg0:#02030a;
+      --bg1:#050818;
+      --ice0:#0b1630;
+      --ice1:#0aa9ff;
+      --ice2:#d9fbff;
+      --glass: rgba(12, 16, 30, .42);
+      --glass2: rgba(255,255,255,.08);
+      --stroke: rgba(255,255,255,.14);
+      --text: rgba(245, 250, 255, .92);
+      --muted: rgba(245, 250, 255, .62);
+      --shadow: rgba(0,0,0,.55);
+      --accent:#7de6ff;
+      --accent2:#b6fff1;
+      --danger:#ff5a7a;
+      --ok:#6dffb1;
+      --ring: rgba(125,230,255,.45);
 
-        body {
-            min-height: 100vh;
-            overflow: hidden;
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(to bottom, #0a1628 0%, #0d1f3c 50%, #061224 100%);
-        }
+      --parallaxX: 0px;
+      --parallaxY: 0px;
+      --tiltX: 0deg;
+      --tiltY: 0deg;
 
-        #three-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 1;
-        }
+      --ui-scale: 1;
+    }
 
-        /* Lightning Flash - Blue tint */
-        .lightning-flash {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(136, 200, 255, 0);
-            pointer-events: none;
-            z-index: 2;
-            transition: background 0.08s ease;
-        }
+    *{ box-sizing: border-box; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Noto Sans Arabic", "Noto Naskh Arabic", "Cairo", sans-serif;
+      background: radial-gradient(1200px 800px at 50% 20%, #0a1233 0%, #040712 45%, #010208 100%);
+      color: var(--text);
+      overflow: hidden;
+    }
 
-        .lightning-flash.active {
-            background: rgba(136, 200, 255, 0.25);
-        }
+    /* Subtle film grain */
+    body::before{
+      content:"";
+      position:fixed; inset:-40%;
+      background:
+        radial-gradient(circle at 20% 10%, rgba(255,255,255,.05), transparent 55%),
+        radial-gradient(circle at 80% 60%, rgba(255,255,255,.04), transparent 58%),
+        repeating-linear-gradient(0deg, rgba(255,255,255,.02) 0 1px, transparent 1px 3px);
+      filter: blur(0.6px) contrast(105%);
+      opacity:.18;
+      pointer-events:none;
+      transform: rotate(9deg);
+      mix-blend-mode: overlay;
+      z-index: 50;
+    }
 
-        /* Blue Glow Overlay */
-        .blue-glow {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                ellipse at 50% 0%,
-                rgba(100, 180, 255, 0.08) 0%,
-                transparent 60%
-            );
-            pointer-events: none;
-            z-index: 2;
-        }
-                /* Brand Header */
-        .brand-header {
-            position: fixed;
-            top: 40px;
-            width: 100%;
-            text-align: center;
-            z-index: 10;
-        }
+    .app{
+      position: relative;
+      height: 100vh;
+      width: 100vw;
+      perspective: 1000px;
+      transform-style: preserve-3d;
+    }
 
-        .brand-name {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 15px;
-            font-weight: 400;
-            letter-spacing: 0.5em;
-            color: rgba(180, 220, 255, 0.85);
-            text-transform: uppercase;
-            text-shadow: 0 0 20px rgba(100, 180, 255, 0.3);
-        }
+    /* Base scene container */
+    .scene{
+      position:absolute; inset:0;
+      transform-style: preserve-3d;
+      background: radial-gradient(1200px 700px at 50% 15%, #0a1c45 0%, #05071a 52%, #010208 100%);
+    }
 
-        /* Center Content */
-        .center-content {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 10;
-        }
+    /* Optional user-provided background image (exact match) */
+    .bgImage{
+      position:absolute; inset:0;
+      background-size: cover;
+      background-position: center;
+      background-repeat:no-repeat;
+      opacity: 0;
+      filter: saturate(1.05) contrast(1.06);
+      transform: translate3d(calc(var(--parallaxX) * .06), calc(var(--parallaxY) * .06), -10px) scale(1.06);
+      transition: opacity .35s ease;
+    }
+    .bgImage.on{ opacity: 1; }
 
-        .main-title {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: clamp(50px, 12vw, 130px);
-            font-weight: 300;
-            letter-spacing: 0.2em;
-            color: rgba(200, 230, 255, 0.95);
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: all 0.5s ease;
-            text-shadow: 
-                0 0 40px rgba(100, 180, 255, 0.4),
-                0 0 80px rgba(100, 180, 255, 0.2);
-            text-indent: 0.2em;
-        }
+    /* Procedural gradient fallback background */
+    .bgProcedural{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(1100px 620px at 50% 15%, rgba(44,85,160,.55) 0%, rgba(10,18,51,.25) 32%, rgba(0,0,0,0) 62%),
+        radial-gradient(900px 500px at 55% 35%, rgba(180,240,255,.15) 0%, transparent 55%),
+        linear-gradient(to bottom, #05081a 0%, #02030a 45%, #02030a 100%);
+      transform: translate3d(calc(var(--parallaxX) * .04), calc(var(--parallaxY) * .04), -40px) scale(1.08);
+      filter: contrast(1.08) saturate(1.03);
+    }
 
-        .main-title:hover {
-            text-shadow: 
-                0 0 60px rgba(100, 180, 255, 0.6),
-                0 0 100px rgba(100, 180, 255, 0.4),
-                0 0 140px rgba(100, 180, 255, 0.2);
-            letter-spacing: 0.25em;
-        }
+    /* Canvas layers */
+    canvas.layer{
+      position:absolute; inset:0;
+      width:100%;
+      height:100%;
+      display:block;
+      transform-style: preserve-3d;
+      pointer-events:none;
+    }
+    #skyCanvas{
+      transform: translate3d(calc(var(--parallaxX) * .02), calc(var(--parallaxY) * .02), -60px) scale(1.08);
+      mix-blend-mode: screen;
+      opacity: .95;
+    }
+    #snowCanvas{
+      transform: translate3d(calc(var(--parallaxX) * .13), calc(var(--parallaxY) * .13), 60px);
+      mix-blend-mode: screen;
+      opacity: .95;
+    }
 
-        .subtitle {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 11px;
-            font-weight: 300;
-            letter-spacing: 0.4em;
-            color: rgba(150, 200, 255, 0.5);
-            margin-top: 20px;
-            text-transform: uppercase;
-        }
+    /* Faux depth: atmospheric haze + vignette */
+    .atmo{
+      position:absolute; inset:0;
+      background:
+        radial-gradient(900px 520px at 50% 62%, rgba(160, 230, 255, .08) 0%, rgba(6,8,16,0) 60%),
+        radial-gradient(800px 420px at 50% 78%, rgba(150, 245, 255, .08) 0%, transparent 70%),
+        radial-gradient(1200px 800px at 50% 80%, rgba(0,0,0,.35) 0%, rgba(0,0,0,.55) 55%, rgba(0,0,0,.86) 100%);
+      pointer-events:none;
+      transform: translate3d(0,0,120px);
+      opacity: .98;
+    }
 
-        .divider {
-            width: 80px;
-            height: 1px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(100, 180, 255, 0.5), 
-                transparent
-            );
-            margin: 25px auto;
-        }
+    /* Foreground framing "trees" (stylized but photoreal-ish lighting) */
+    .frame{
+      position:absolute; inset:0;
+      pointer-events:none;
+      transform-style: preserve-3d;
+      transform: translate3d(calc(var(--parallaxX) * .18), calc(var(--parallaxY) * .18), 110px) rotateX(var(--tiltX)) rotateY(var(--tiltY));
+      filter: drop-shadow(0 18px 40px rgba(0,0,0,.55));
+      opacity: .92;
+    }
 
-        .tagline {
-            font-family: 'Cormorant Garamond', serif;
-            font-size: 14px;
-            font-weight: 400;
-            font-style: italic;
-            letter-spacing: 0.15em;
-            color: rgba(150, 200, 255, 0.4);
-        }
-        /* Bottom */
-        .bottom-text {
-            position: fixed;
-            bottom: 40px;
-            width: 100%;
-            text-align: center;
-            z-index: 10;
-        }
+    .frame .left,
+    .frame .right{
+      position:absolute; top:-8%; bottom:-10%;
+      width: 40vw;
+      min-width: 260px;
+      background-repeat:no-repeat;
+      background-size: cover;
+      mix-blend-mode: normal;
+      opacity: .98;
+    }
+    .frame .left{
+      left:-12vw;
+      transform: rotate(-2deg) translateZ(0);
+      background:
+        radial-gradient(closest-side at 70% 20%, rgba(255,255,255,.28), transparent 70%),
+        radial-gradient(closest-side at 64% 55%, rgba(255,255,255,.18), transparent 70%),
+        radial-gradient(closest-side at 70% 80%, rgba(255,255,255,.22), transparent 72%),
+        linear-gradient(90deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.72) 28%, rgba(0,0,0,0) 78%),
+        radial-gradient(600px 900px at 30% 45%, rgba(40,60,80,.55), rgba(0,0,0,0) 70%),
+        repeating-radial-gradient(circle at 35% 40%, rgba(255,255,255,.06) 0 2px, transparent 2px 10px);
+      filter: blur(.2px) contrast(1.06) saturate(1.02);
+      clip-path: polygon(0 0, 82% 0, 65% 14%, 88% 28%, 62% 42%, 84% 57%, 58% 72%, 80% 86%, 52% 100%, 0 100%);
+    }
+    .frame .right{
+      right:-12vw;
+      transform: rotate(2.2deg) translateZ(0);
+      background:
+        radial-gradient(closest-side at 35% 20%, rgba(255,255,255,.30), transparent 70%),
+        radial-gradient(closest-side at 32% 52%, rgba(255,255,255,.18), transparent 70%),
+        radial-gradient(closest-side at 35% 82%, rgba(255,255,255,.24), transparent 72%),
+        linear-gradient(-90deg, rgba(0,0,0,.86) 0%, rgba(0,0,0,.72) 28%, rgba(0,0,0,0) 78%),
+        radial-gradient(600px 900px at 70% 45%, rgba(40,60,80,.55), rgba(0,0,0,0) 70%),
+        repeating-radial-gradient(circle at 65% 40%, rgba(255,255,255,.06) 0 2px, transparent 2px 10px);
+      filter: blur(.2px) contrast(1.06) saturate(1.02);
+      clip-path: polygon(18% 0, 100% 0, 100% 100%, 48% 100%, 20% 86%, 42% 72%, 16% 57%, 38% 42%, 12% 28%, 35% 14%);
+    }
 
-        .scroll-hint {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 10px;
-            font-weight: 300;
-            letter-spacing: 0.3em;
-            color: rgba(150, 200, 255, 0.3);
-            text-transform: uppercase;
-        }
+    /* Snowy ground fade */
+    .ground{
+      position:absolute; left:0; right:0; bottom:0;
+      height: 44vh;
+      background:
+        radial-gradient(900px 220px at 50% 100%, rgba(170,240,255,.16), rgba(0,0,0,0) 65%),
+        linear-gradient(to top, rgba(220,245,255,.16) 0%, rgba(10,15,30,.08) 25%, rgba(0,0,0,0) 70%);
+      transform: translate3d(calc(var(--parallaxX) * .06), calc(var(--parallaxY) * .06), 20px);
+      pointer-events:none;
+    }
 
-        /* Floating particles effect */
-        .particles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 3;
-        }
+    /* Lake (ice) */
+    .lake{
+      position:absolute;
+      left: 50%;
+      top: 62%;
+      width: min(980px, 96vw);
+      height: min(520px, 56vh);
+      transform: translate(-50%, -50%) translate3d(calc(var(--parallaxX) * .09), calc(var(--parallaxY) * .09), 40px);
+      clip-path: ellipse(46% 22% at 50% 68%);
+      filter: saturate(1.08) contrast(1.05);
+      pointer-events:none;
+    }
 
-        .particle {
-            position: absolute;
-            width: 2px;
-            height: 2px;
-            background: rgba(150, 200, 255, 0.6);
-            border-radius: 50%;
-            animation: float 15s infinite ease-in-out;
-        }
+    .lake::before{
+      content:"";
+      position:absolute; inset:-2%;
+      background:
+        radial-gradient(closest-side at 50% 72%, rgba(0, 190, 255, .70) 0%, rgba(0, 160, 255, .40) 30%, rgba(0,0,0,0) 68%),
+        radial-gradient(closest-side at 50% 80%, rgba(220, 252, 255, .40) 0%, rgba(0,0,0,0) 64%),
+        radial-gradient(closest-side at 50% 65%, rgba(12, 28, 60, .88) 0%, rgba(3, 8, 18, .92) 45%, rgba(0,0,0,0) 76%),
+        linear-gradient(to bottom, rgba(180,245,255,.12) 0%, rgba(0,0,0,0) 55%);
+      mix-blend-mode: screen;
+      opacity: .95;
+    }
 
-        @keyframes float {
-            0%, 100% { 
-                transform: translateY(0) translateX(0);
-                opacity: 0;
-            }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            50% { 
-                transform: translateY(-100px) translateX(20px);
-            }
-        }
-    </style>
+    .lake::after{
+      content:"";
+      position:absolute; inset:-3%;
+      background:
+        radial-gradient(closest-side at 50% 70%, rgba(255,255,255,.18) 0%, rgba(255,255,255,.06) 32%, rgba(0,0,0,0) 60%),
+        radial-gradient(closest-side at 50% 78%, rgba(255,255,255,.12) 0%, rgba(0,0,0,0) 62%),
+        radial-gradient(closest-side at 50% 92%, rgba(0,0,0,.32) 0%, rgba(0,0,0,0) 70%);
+      mix-blend-mode: overlay;
+      opacity: .65;
+      filter: blur(.2px);
+    }
+
+    #lakeCanvas{
+      position:absolute; inset:0;
+      width:100%; height:100%;
+      display:block;
+      opacity: .90;
+      mix-blend-mode: screen;
+      filter: blur(.1px);
+    }
+
+    /* Center UI */
+    .ui{
+      position:absolute; inset:0;
+      display:grid;
+      place-items:center;
+      pointer-events:none;
+      transform: translate3d(0,0,140px);
+    }
+
+    .enterWrap{
+      pointer-events: auto;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      gap: 14px;
+      transform:
+        translate3d(calc(var(--parallaxX) * .15), calc(var(--parallaxY) * .15), 0)
+        rotateX(var(--tiltX)) rotateY(var(--tiltY));
+      transition: transform .12s ease;
+    }
+
+    .enter{
+      user-select:none;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      font-weight: 900;
+      font-size: clamp(40px, 5.6vw, 86px);
+      padding: 18px 28px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.14);
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.18) 0%, rgba(255,255,255,.05) 26%, rgba(0,0,0,.18) 100%),
+        radial-gradient(1000px 260px at 50% 20%, rgba(255,255,255,.10), rgba(0,0,0,0) 60%),
+        linear-gradient(90deg, rgba(125,230,255,.14), rgba(255,255,255,.06), rgba(182,255,241,.14));
+      color: rgba(245,250,255,.92);
+      text-shadow:
+        0 12px 28px rgba(0,0,0,.45),
+        0 1px 0 rgba(255,255,255,.16);
+      box-shadow:
+        0 26px 80px rgba(0,0,0,.55),
+        inset 0 1px 0 rgba(255,255,255,.18),
+        inset 0 -18px 28px rgba(0,0,0,.22);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      transform: translateZ(0);
+      cursor: pointer;
+      outline: none;
+      position: relative;
+      overflow: hidden;
+    }
+    .enter::before{
+      content:"";
+      position:absolute; inset:-40% -30%;
+      background:
+        repeating-linear-gradient(110deg,
+          rgba(255,255,255,.00) 0 10px,
+          rgba(255,255,255,.10) 10px 12px,
+          rgba(255,255,255,.00) 12px 22px);
+      transform: translateX(-30%) rotate(8deg);
+      opacity: .35;
+      mix-blend-mode: overlay;
+      filter: blur(.2px);
+    }
+    .enter::after{
+      content:"";
+      position:absolute; inset:-2px;
+      border-radius: 18px;
+      box-shadow: 0 0 0 0 rgba(125,230,255,0);
+      transition: box-shadow .25s ease, opacity .25s ease;
+      opacity: 0;
+      pointer-events:none;
+    }
+    .enter:hover::after{
+      opacity: 1;
+      box-shadow:
+        0 0 0 1px rgba(125,230,255,.20),
+        0 0 60px rgba(125,230,255,.25),
+        0 0 140px rgba(182,255,241,.12);
+    }
+    .enter:focus-visible{
+      box-shadow:
+        0 0 0 4px var(--ring),
+        0 26px 80px rgba(0,0,0,.55),
+        inset 0 1px 0 rgba(255,255,255,.18),
+        inset 0 -18px 28px rgba(0,0,0,.22);
+    }
+    .subhint{
+      font-size: 13px;
+      color: var(--muted);
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 999px;
+      padding: 8px 12px;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: 0 18px 50px rgba(0,0,0,.35);
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      max-width: min(560px, 92vw);
+    }
+    .kbd{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(245,250,255,.86);
+    }
+
+    /* Top bar controls */
+    .topbar{
+      position:absolute;
+      top: 18px;
+      left: 18px;
+      right: 18px;
+      display:flex;
+      align-items:flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      z-index: 60;
+      pointer-events:none;
+      transform: translate3d(0,0,160px);
+    }
+    .brand{
+      pointer-events: auto;
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.18));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 24px 60px rgba(0,0,0,.36);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      max-width: min(520px, 62vw);
+    }
+    .brand .title{
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      font-weight: 800;
+      letter-spacing: .02em;
+      color: rgba(245,250,255,.92);
+      line-height: 1.2;
+    }
+    .dot{
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.9), rgba(125,230,255,.65) 35%, rgba(125,230,255,.10) 70%, transparent 72%);
+      box-shadow: 0 0 0 2px rgba(125,230,255,.10), 0 0 26px rgba(125,230,255,.20);
+      flex: 0 0 auto;
+    }
+    .brand .meta{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .pill{
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.04);
+      padding: 6px 10px;
+      border-radius: 999px;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+    }
+    .pill b{
+      color: rgba(245,250,255,.92);
+      font-weight: 800;
+    }
+
+    .controls{
+      pointer-events:auto;
+      display:flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: flex-end;
+      max-width: min(560px, 96vw);
+    }
+
+    .panel{
+      width: min(560px, 96vw);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.22));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 28px 80px rgba(0,0,0,.40);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      overflow: hidden;
+    }
+    .panel header{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border-bottom: 1px solid rgba(255,255,255,.10);
+    }
+    .panel header .h{
+      font-weight: 900;
+      letter-spacing: .02em;
+      color: rgba(245,250,255,.92);
+      font-size: 13px;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+    }
+    .panel header .toggle{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(245,250,255,.86);
+      border-radius: 999px;
+      padding: 7px 10px;
+      cursor: pointer;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: .02em;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      user-select:none;
+      outline:none;
+    }
+    .panel header .toggle:focus-visible{
+      box-shadow: 0 0 0 4px var(--ring);
+    }
+    .panel .content{
+      padding: 12px 14px 14px;
+      display:grid;
+      gap: 12px;
+    }
+    .row{
+      display:grid;
+      gap: 10px;
+      grid-template-columns: 1fr 1fr;
+    }
+    @media (max-width: 880px){
+      .topbar{ flex-direction: column; align-items: stretch; }
+      .controls{ align-items: stretch; }
+      .row{ grid-template-columns: 1fr; }
+      .brand{ max-width: 100%; }
+    }
+
+    label{
+      display:flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    label .lab{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .val{
+      font-variant-numeric: tabular-nums;
+      color: rgba(245,250,255,.84);
+      font-weight: 800;
+    }
+
+    input[type="range"]{
+      width: 100%;
+      accent-color: var(--accent);
+    }
+    select, button, input[type="file"]{
+      font: inherit;
+    }
+
+    .actions{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items:center;
+      justify-content: flex-end;
+    }
+    .btn{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: rgba(245,250,255,.90);
+      border-radius: 14px;
+      padding: 10px 12px;
+      cursor:pointer;
+      font-weight: 850;
+      letter-spacing: .01em;
+      transition: transform .12s ease, background .15s ease, border-color .15s ease;
+      user-select:none;
+      display:flex;
+      align-items:center;
+      gap: 10px;
+      outline:none;
+    }
+    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.09); border-color: rgba(125,230,255,.22); }
+    .btn:active{ transform: translateY(0px); }
+    .btn:focus-visible{ box-shadow: 0 0 0 4px var(--ring); }
+
+    .btn.primary{
+      background: linear-gradient(180deg, rgba(125,230,255,.22), rgba(255,255,255,.06));
+      border-color: rgba(125,230,255,.28);
+    }
+    .btn.danger{
+      border-color: rgba(255,90,122,.25);
+      background: linear-gradient(180deg, rgba(255,90,122,.18), rgba(255,255,255,.05));
+    }
+
+    .fileRow{
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      justify-content: space-between;
+      border: 1px dashed rgba(255,255,255,.18);
+      background: rgba(0,0,0,.18);
+      padding: 10px 12px;
+      border-radius: 14px;
+    }
+    .fileRow .hint{
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.35;
+    }
+    .fileRow input[type="file"]{
+      max-width: 210px;
+      color: rgba(245,250,255,.86);
+    }
+    .dropZone{
+      position:absolute; inset:0;
+      border-radius: 18px;
+      background: rgba(125,230,255,.08);
+      border: 1px dashed rgba(125,230,255,.35);
+      display:none;
+      place-items:center;
+      text-align:center;
+      padding: 14px;
+      color: rgba(245,250,255,.92);
+      pointer-events:none;
+    }
+    .panel.drag .dropZone{ display:grid; }
+
+    /* "Entered" transition */
+    .entered .enterWrap{
+      transform: translate3d(calc(var(--parallaxX) * .15), calc(var(--parallaxY) * .15), 0) rotateX(var(--tiltX)) rotateY(var(--tiltY)) scale(.92);
+      opacity: .0;
+      transition: transform .55s ease, opacity .45s ease;
+      pointer-events:none;
+    }
+    .entered .lake{
+      transform: translate(-50%, -50%) translate3d(calc(var(--parallaxX) * .09), calc(var(--parallaxY) * .09), 40px) scale(1.08);
+      transition: transform .65s ease;
+    }
+    .entered .atmo{
+      opacity: 1;
+      background:
+        radial-gradient(900px 520px at 50% 62%, rgba(160, 230, 255, .10) 0%, rgba(6,8,16,0) 62%),
+        radial-gradient(1200px 900px at 50% 78%, rgba(0,0,0,.38) 0%, rgba(0,0,0,.62) 60%, rgba(0,0,0,.90) 100%);
+      transition: opacity .6s ease, background .6s ease;
+    }
+
+    .portalCard{
+      position:absolute;
+      left: 50%;
+      top: 72%;
+      transform: translate(-50%, -50%) translate3d(0,0,170px);
+      width: min(720px, 92vw);
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(0,0,0,.26));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: 0 42px 120px rgba(0,0,0,.55);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      padding: 14px;
+      display:none;
+      pointer-events:auto;
+    }
+    .entered .portalCard{ display:block; }
+
+    .portalCard .grid{
+      display:grid;
+      gap: 12px;
+      grid-template-columns: 1.2fr .8fr;
+      align-items: start;
+    }
+    @media (max-width: 860px){
+      .portalCard{ top: 76%; }
+      .portalCard .grid{ grid-template-columns: 1fr; }
+    }
+    .portalCard h2{
+      margin: 4px 0 6px;
+      font-size: 16px;
+      letter-spacing: .02em;
+    }
+    .portalCard p{
+      margin: 0;
+      color: var(--muted);
+      font-size: 12.5px;
+      line-height: 1.6;
+    }
+    .miniStats{
+      display:grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .stat{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      padding: 10px 12px;
+      display:flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .stat .n{
+      color: rgba(245,250,255,.92);
+      font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+    .portalCard .footer{
+      margin-top: 10px;
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .srOnly{
+      position:absolute;
+      width:1px; height:1px;
+      padding:0; margin:-1px;
+      overflow:hidden; clip:rect(0,0,0,0);
+      white-space:nowrap; border:0;
+    }
+
+    /* Respect reduced motion */
+    @media (prefers-reduced-motion: reduce){
+      .enterWrap, .frame, .lake, .bgImage, .bgProcedural, #snowCanvas, #skyCanvas { transition: none !important; }
+      body::before{ display:none; }
+    }
+  </style>
 </head>
 <body>
+  <div class="app" id="app" aria-label="مشهد شتوي ثلاثي الأبعاد مع زر دخول">
+    <div class="scene" id="scene">
+      <div class="bgProcedural" id="bgProcedural" aria-hidden="true"></div>
+      <div class="bgImage" id="bgImage" aria-hidden="true"></div>
 
-    <canvas id="three-canvas"></canvas>
-    
-    <div class="lightning-flash" id="lightning-flash"></div>
-    <div class="blue-glow"></div>
-    
-    <!-- Floating particles -->
-    <div class="particles" id="particles"></div>
+      <canvas class="layer" id="skyCanvas" aria-hidden="true"></canvas>
 
-    <header class="brand-header">
-        <div class="brand-name">Local Brand</div>
-    </header>
+      <div class="ground" aria-hidden="true"></div>
 
-    <main class="center-content">
-        <h1 class="main-title">ENTER</h1>
-        <p class="subtitle">Winter Collection 2025</p>
-        <div class="divider"></div>
-        <p class="tagline">Where frost meets elegance</p>
-    </main>
+      <div class="lake" aria-hidden="true">
+        <canvas id="lakeCanvas"></canvas>
+      </div>
 
-    <footer class="bottom-text">
-        <p class="scroll-hint">Click to explore</p>
-    </footer>
-    <script>        // ============== FLOATING PARTICLES ==============
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.top = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 15 + 's';
-            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
-            particlesContainer.appendChild(particle);
+      <div class="frame" aria-hidden="true">
+        <div class="left"></div>
+        <div class="right"></div>
+      </div>
+
+      <canvas class="layer" id="snowCanvas" aria-hidden="true"></canvas>
+
+      <div class="atmo" aria-hidden="true"></div>
+
+      <div class="ui">
+        <div class="enterWrap">
+          <button class="enter" id="enterBtn" aria-label="Enter">ENTER</button>
+          <div class="subhint" aria-label="تلميحات">
+            <span>حركة 3D حسب الماوس/الجيروسكوب + ثلج واقعي + جليد متحرك (بدون تهنيج قدر الإمكان)</span>
+            <span class="kbd" aria-hidden="true">Space</span>
+            <span class="kbd" aria-hidden="true">Enter</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="portalCard" id="portalCard" role="dialog" aria-modal="true" aria-label="لوحة داخل البوابة">
+        <div class="grid">
+          <div>
+            <h2>داخل البوابة</h2>
+            <p>
+              لو عايز “نفس الصورة بالظبط”: ارفع الصورة كخلفية من الإعدادات (أعلى يمين) وسيتم إضافة عمق 3D + نجوم/ثلج/جليد فوقها.
+              ولو ما رفعتهاش، الصفحة تعمل مشهد شتوي مولَّد تلقائيًا.
+            </p>
+          </div>
+          <div class="miniStats" aria-label="مؤشرات الأداء">
+            <div class="stat"><span>FPS (تقريبي)</span><span class="n" id="fpsVal">—</span></div>
+            <div class="stat"><span>جودة تلقائية</span><span class="n" id="autoVal">—</span></div>
+            <div class="stat"><span>عدد الثلج</span><span class="n" id="snowVal">—</span></div>
+          </div>
+        </div>
+        <div class="footer">
+          <button class="btn" id="backBtn" aria-label="رجوع">رجوع</button>
+          <button class="btn primary" id="toggleSoundBtn" aria-label="تشغيل أو إيقاف الصوت">الصوت: إيقاف</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="topbar" aria-hidden="false">
+      <div class="brand" aria-label="معلومات">
+        <div class="title"><span class="dot" aria-hidden="true"></span>بوابة الشتاء (3D)</div>
+        <div class="meta">
+          <span class="pill"><b>Parallax</b> حسب الحركة</span>
+          <span class="pill"><b>Auto</b> يقلل الحمل تلقائيًا</span>
+          <span class="pill"><b>رفع صورة</b> لتطابق الشكل</span>
+        </div>
+      </div>
+
+      <div class="controls" aria-label="إعدادات">
+        <div class="panel" id="panel">
+          <header>
+            <div class="h">الإعدادات</div>
+            <button class="toggle" id="collapseBtn" aria-expanded="true" aria-controls="panelContent">إخفاء</button>
+          </header>
+          <div class="content" id="panelContent">
+            <div class="fileRow" aria-label="رفع خلفية">
+              <div class="hint">
+                لو عايز نفس الصورة 100%: اسحب الصورة هنا أو اختارها.<br>
+                (بيتم استخدامها محليًا داخل الصفحة فقط)
+              </div>
+              <input type="file" id="bgFile" accept="image/*" aria-label="اختيار صورة خلفية" />
+            </div>
+
+            <div class="row">
+              <label>
+                <div class="lab"><span>الجودة</span><span class="val" id="qualityVal">Auto</span></div>
+                <select id="qualitySelect" aria-label="اختيار الجودة">
+                  <option value="auto" selected>Auto (مُوصى به)</option>
+                  <option value="high">High</option>
+                  <option value="medium">Medium</option>
+                  <option value="low">Low</option>
+                </select>
+              </label>
+
+              <label>
+                <div class="lab"><span>قوة الـ 3D</span><span class="val" id="parallaxVal">65%</span></div>
+                <input id="parallaxRange" type="range" min="0" max="100" value="65" />
+              </label>
+            </div>
+
+            <div class="row">
+              <label>
+                <div class="lab"><span>كثافة الثلج</span><span class="val" id="snowDensityVal">70%</span></div>
+                <input id="snowRange" type="range" min="0" max="100" value="70" />
+              </label>
+
+              <label>
+                <div class="lab"><span>كثافة النجوم</span><span class="val" id="starDensityVal">60%</span></div>
+                <input id="starsRange" type="range" min="0" max="100" value="60" />
+              </label>
+            </div>
+
+            <div class="row">
+              <label>
+                <div class="lab"><span>وميض النجوم</span><span class="val" id="twinkleVal">35%</span></div>
+                <input id="twinkleRange" type="range" min="0" max="100" value="35" />
+              </label>
+
+              <label>
+                <div class="lab"><span>لمعة الجليد</span><span class="val" id="iceVal">55%</span></div>
+                <input id="iceRange" type="range" min="0" max="100" value="55" />
+              </label>
+            </div>
+
+            <div class="actions">
+              <button class="btn" id="resetBtn" aria-label="إرجاع الإعدادات">إرجاع</button>
+              <button class="btn danger" id="clearBgBtn" aria-label="إزالة الخلفية">إزالة الصورة</button>
+              <button class="btn primary" id="enterBtn2" aria-label="Enter">ENTER</button>
+            </div>
+            <div class="dropZone" id="dropZone" aria-hidden="true">
+              اسحب الصورة وأفلتها هنا لتصبح الخلفية
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="srOnly" id="a11yNote">
+      استخدم زر Enter للدخول. يمكنك رفع صورة لتصبح الخلفية. يوجد إعدادات لتقليل الحمل إذا شعرت بتقطيع.
+    </p>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      "use strict";
+      const app = document.getElementById('app');
+      const scene = document.getElementById('scene');
+
+      const skyCanvas = document.getElementById('skyCanvas');
+      const snowCanvas = document.getElementById('snowCanvas');
+      const lakeCanvas = document.getElementById('lakeCanvas');
+
+      const enterBtn = document.getElementById('enterBtn');
+      const enterBtn2 = document.getElementById('enterBtn2');
+      const backBtn = document.getElementById('backBtn');
+      const portalCard = document.getElementById('portalCard');
+
+      const fpsVal = document.getElementById('fpsVal');
+      const autoVal = document.getElementById('autoVal');
+      const snowVal = document.getElementById('snowVal');
+
+      const panel = document.getElementById('panel');
+      const panelContent = document.getElementById('panelContent');
+      const collapseBtn = document.getElementById('collapseBtn');
+      const dropZone = document.getElementById('dropZone');
+
+      const bgFile = document.getElementById('bgFile');
+      const bgImage = document.getElementById('bgImage');
+
+      const qualitySelect = document.getElementById('qualitySelect');
+      const qualityVal = document.getElementById('qualityVal');
+
+      const parallaxRange = document.getElementById('parallaxRange');
+      const parallaxVal = document.getElementById('parallaxVal');
+
+      const snowRange = document.getElementById('snowRange');
+      const snowDensityVal = document.getElementById('snowDensityVal');
+
+      const starsRange = document.getElementById('starsRange');
+      const starDensityVal = document.getElementById('starDensityVal');
+
+      const twinkleRange = document.getElementById('twinkleRange');
+      const twinkleVal = document.getElementById('twinkleVal');
+
+      const iceRange = document.getElementById('iceRange');
+      const iceVal = document.getElementById('iceVal');
+
+      const resetBtn = document.getElementById('resetBtn');
+      const clearBgBtn = document.getElementById('clearBgBtn');
+
+      const toggleSoundBtn = document.getElementById('toggleSoundBtn');
+
+      const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // -----------------------------
+      // Helpers
+      // -----------------------------
+      const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const rand = (min, max) => min + Math.random() * (max - min);
+      const now = () => performance.now();
+
+      function setCSSVar(name, val){ document.documentElement.style.setProperty(name, val); }
+
+      // -----------------------------
+      // Quality system (auto-adaptive)
+      // -----------------------------
+      const state = {
+        qualityMode: 'auto', // auto | high | medium | low
+        autoTier: 'High',
+        dprCap: 2,
+        parallaxStrength: 0.65,
+        snowDensity: 0.70,
+        starDensity: 0.60,
+        twinkle: 0.35,
+        iceShine: 0.55,
+        hasBgImage: false,
+        audioOn: false,
+      };
+
+      const tiers = {
+        high:   { dprCap: 2.0, snowBase: 900, starsBase: 1400, twinkleFPSCost: 1.0 },
+        medium: { dprCap: 1.6, snowBase: 650, starsBase: 1050, twinkleFPSCost: 0.8 },
+        low:    { dprCap: 1.25, snowBase: 380, starsBase: 650, twinkleFPSCost: 0.6 }
+      };
+
+      function currentTier(){
+        if(state.qualityMode === 'auto'){
+          if(state.autoTier === 'High') return tiers.high;
+          if(state.autoTier === 'Medium') return tiers.medium;
+          return tiers.low;
         }
+        return tiers[state.qualityMode] || tiers.medium;
+      }
 
-        // ============== THREE.JS SCENE ==============
-        
-        const scene = new THREE.Scene();
-        
-        // Blue-tinted fog
-        scene.fog = new THREE.FogExp2(0x0d1f3c, 0.012);
+      // -----------------------------
+      // Resize handling
+      // -----------------------------
+      let vw = 0, vh = 0, dpr = 1;
 
-        const camera = new THREE.PerspectiveCamera(
-            60,
-            window.innerWidth / window.innerHeight,
-            0.1,
-            1000
-        );
-        camera.position.set(0, 10, 35);
-        camera.lookAt(0, 5, 0);
+      function resizeAll(){
+        vw = Math.max(320, window.innerWidth);
+        vh = Math.max(480, window.innerHeight);
 
-        const canvas = document.getElementById('three-canvas');
-        const renderer = new THREE.WebGLRenderer({
-            canvas,
-            antialias: true,
-            alpha: false
-        });
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        renderer.setClearColor(0x0a1628);
-        renderer.toneMapping = THREE.ACESFilmicToneMapping;
-        renderer.toneMappingExposure = 1.2;
+        const tier = currentTier();
+        dpr = Math.min(window.devicePixelRatio || 1, tier.dprCap);
 
-        // ============== WINTER BLUE LIGHTING ==============
+        // Sky
+        skyCanvas.width = Math.floor(vw * dpr);
+        skyCanvas.height = Math.floor(vh * dpr);
 
-        // 1. Ambient Light - Soft blue
-        const ambientLight = new THREE.AmbientLight(0x4477aa, 0.4);
-        scene.add(ambientLight);
+        // Snow
+        snowCanvas.width = Math.floor(vw * dpr);
+        snowCanvas.height = Math.floor(vh * dpr);
 
-        // 2. Moonlight - Cool blue directional
-        const moonLight = new THREE.DirectionalLight(0x88ccff, 0.8);
-        moonLight.position.set(15, 40, 10);
-        moonLight.castShadow = true;
-        scene.add(moonLight);
-        // 3. Hemisphere Light - Sky/Ground
-        const hemiLight = new THREE.HemisphereLight(
-            0x88bbff,  // Sky color - light blue
-            0x222244,  // Ground color - dark blue
-            0.5
-        );
-        scene.add(hemiLight);
+        // Lake canvas matches its DOM box
+        const lakeRect = lakeCanvas.parentElement.getBoundingClientRect();
+        lakeCanvas.width = Math.max(1, Math.floor(lakeRect.width * dpr));
+        lakeCanvas.height = Math.max(1, Math.floor(lakeRect.height * dpr));
 
-        // 4. Rim Light - Back light blue glow
-        const rimLight = new THREE.DirectionalLight(0x66aaff, 0.3);
-        rimLight.position.set(-10, 20, -20);
-        scene.add(rimLight);
+        buildSky(true);
+        buildSnow(true);
+        buildLake(true);
+      }
 
-        // 5. Point Lights - Scattered blue glows
-        const blueGlow1 = new THREE.PointLight(0x4488ff, 0.8, 50);
-        blueGlow1.position.set(-20, 5, -10);
-        scene.add(blueGlow1);
+      // -----------------------------
+      // Sky (stars + milky way)
+      // -----------------------------
+      const sky = {
+        stars: [],
+        clouds: [],
+        needsRebuild: true,
+      };
 
-        const blueGlow2 = new THREE.PointLight(0x66aaff, 0.6, 40);
-        blueGlow2.position.set(25, 8, -15);
-        scene.add(blueGlow2);
+      function buildSky(force=false){
+        try{
+          const tier = currentTier();
+          const ctx = skyCanvas.getContext('2d', { alpha: true, desynchronized: true });
+          if(!ctx) return;
 
-        // 6. Lightning Light
-        const lightningLight = new THREE.PointLight(0xaaddff, 0, 500);
-        lightningLight.position.set(0, 60, -20);
-        scene.add(lightningLight);
+          const W = skyCanvas.width, H = skyCanvas.height;
+          const starCount = Math.floor(tier.starsBase * clamp(state.starDensity, 0, 1) * (W*H) / (1200*800*dpr*dpr));
 
-        // ============== GROUND WITH BLUE REFLECTION ==============
-
-        const groundGeometry = new THREE.PlaneGeometry(250, 250);
-        const groundMaterial = new THREE.MeshStandardMaterial({
-            color: 0xddeeff,
-            roughness: 0.7,
-            metalness: 0.2,
-            envMapIntensity: 0.5
-        });
-        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        ground.rotation.x = -Math.PI / 2;
-        ground.position.y = 0;
-        scene.add(ground);
-
-        // ============== SNOWY PINE TREES ==============
-
-        function createTree(x, z, scale = 1) {
-            const treeGroup = new THREE.Group();
-
-            // Trunk
-            const trunkGeometry = new THREE.CylinderGeometry(0.25 * scale, 0.45 * scale, 2 * scale, 8);
-            const trunkMaterial = new THREE.MeshStandardMaterial({
-                color: 0x1a120a,
-                roughness: 0.95
-            });
-            const trunk = new THREE.Mesh(trunkGeometry, trunkMaterial);
-            trunk.position.y = 1 * scale;
-            treeGroup.add(trunk);
-
-            // Pine layers with blue-tinted shadows
-            const layers = 5;
-            for (let i = 0; i < layers; i++) {
-                const layerScale = 1 - (i * 0.12);
-                
-                // Pine cone
-                const coneGeometry = new THREE.ConeGeometry(
-                    (2.2 - i * 0.35) * scale * layerScale,
-                    (2.8 - i * 0.25) * scale,
-                    8
-                );
-                const coneMaterial = new THREE.MeshStandardMaterial({
-                    color: new THREE.Color().setHSL(0.35, 0.4, 0.15 + i * 0.02),
-                    roughness: 0.85
-                });
-                const cone = new THREE.Mesh(coneGeometry, coneMaterial);
-                cone.position.y = (2.2 + i * 1.7) * scale;
-                treeGroup.add(cone);
-
-                // Snow caps - slightly blue tinted
-                const snowGeometry = new THREE.ConeGeometry(
-                    (2.2 - i * 0.35) * scale * layerScale * 0.9,
-                    0.35 * scale,
-                    8
-                );
-                const snowMaterial = new THREE.MeshStandardMaterial({
-                    color: 0xe8f4ff,
-                    roughness: 0.8,
-                    metalness: 0.1
-                });
-                const snow = new THREE.Mesh(snowGeometry, snowMaterial);
-                snow.position.y = (2.2 + i * 1.7 + 1.1) * scale;
-                treeGroup.add(snow);
+          if(force || sky.stars.length === 0){
+            sky.stars = [];
+            for(let i=0;i<starCount;i++){
+              // Bias to top half
+              const y = Math.pow(Math.random(), 1.5) * H;
+              const x = Math.random() * W;
+              const r = Math.pow(Math.random(), 2.6) * 1.6 + 0.2;
+              const base = Math.pow(Math.random(), 1.2);
+              const tw = Math.random() * 2.2 + 0.6;
+              const hueBias = Math.random();
+              const tint = hueBias < 0.78 ? [210, 235, 255] : (hueBias < 0.92 ? [235, 245, 255] : [255, 240, 220]);
+              sky.stars.push({ x, y, r, base, tw, ph: Math.random()*Math.PI*2, tint });
             }
 
-            treeGroup.position.set(x, 0, z);
-            return treeGroup;
+            // Milky-way-ish clouds (blurred blobs along a diagonal band)
+            sky.clouds = [];
+            const bandAngle = -18 * Math.PI / 180;
+            const bandCX = W * 0.52, bandCY = H * 0.26;
+            const steps = 120;
+            for(let i=0;i<steps;i++){
+              const t = i/(steps-1);
+              const along = lerp(-W*0.25, W*0.55, t);
+              const cx = bandCX + along*Math.cos(bandAngle) + rand(-W*0.02, W*0.02);
+              const cy = bandCY + along*Math.sin(bandAngle) + rand(-H*0.02, H*0.02);
+              const rr = rand(70, 220) * dpr;
+              const a = rand(0.015, 0.05);
+              sky.clouds.push({ cx, cy, rr, a });
+            }
+          }
+
+          // Draw static base sky once
+          ctx.setTransform(1,0,0,1,0,0);
+          ctx.clearRect(0,0,W,H);
+
+          // deep gradient
+          const g = ctx.createLinearGradient(0,0,0,H);
+          g.addColorStop(0, '#050a22');
+          g.addColorStop(0.45, '#02030a');
+          g.addColorStop(1, '#010107');
+          ctx.fillStyle = g;
+          ctx.fillRect(0,0,W,H);
+
+          // Milky way haze
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          for(const c of sky.clouds){
+            const gg = ctx.createRadialGradient(c.cx, c.cy, 0, c.cx, c.cy, c.rr);
+            gg.addColorStop(0, `rgba(170, 220, 255, ${c.a})`);
+            gg.addColorStop(0.45, `rgba(120, 190, 255, ${c.a*0.55})`);
+            gg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gg;
+            ctx.beginPath();
+            ctx.arc(c.cx, c.cy, c.rr, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // stars (base)
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          for(const s of sky.stars){
+            const a = 0.14 + 0.86 * s.base;
+            ctx.fillStyle = `rgba(${s.tint[0]},${s.tint[1]},${s.tint[2]},${a})`;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // subtle vignette
+          ctx.save();
+          const vg = ctx.createRadialGradient(W*0.5, H*0.48, Math.min(W,H)*0.2, W*0.5, H*0.48, Math.min(W,H)*0.75);
+          vg.addColorStop(0, 'rgba(0,0,0,0)');
+          vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+          ctx.fillStyle = vg;
+          ctx.fillRect(0,0,W,H);
+          ctx.restore();
+
+          sky.needsRebuild = false;
+        } catch(e){
+          console.error('buildSky error', e);
         }
+      }
 
-        // Tree positions
-        const treePositions = [
-            { x: -28, z: -25, s: 1.3 },
-            { x: -22, z: -18, s: 1.0 },
-            { x: -32, z: -12, s: 1.5 },
-            { x: -18, z: -8, s: 0.9 },
-            { x: -26, z: -2, s: 1.2 },
-            { x: -20, z: 4, s: 1.1 },
-            { x: -35, z: -30, s: 1.1 },
-            { x: -15, z: -28, s: 0.85 },
-            
-            { x: 28, z: -25, s: 1.3 },
-            { x: 22, z: -18, s: 1.0 },
-            { x: 32, z: -12, s: 1.5 },
-            { x: 18, z: -8, s: 0.9 },
-            { x: 26, z: -2, s: 1.2 },
-            { x: 20, z: 4, s: 1.1 },
-            { x: 35, z: -30, s: 1.1 },
-            { x: 15, z: -28, s: 0.85 },
-            
-            { x: -8, z: -50, s: 0.7 },
-            { x: 0, z: -55, s: 0.75 },
-            { x: 8, z: -50, s: 0.7 },
-            { x: -45, z: -40, s: 0.9 },
-            { x: 45, z: -40, s: 0.9 },
-            { x: -38, z: -50, s: 0.6 },
-            { x: 38, z: -50, s: 0.6 },
-        ];
+      // Twinkle overlay (lightweight)
+      function drawTwinkle(t){
+        try{
+          const ctx = skyCanvas.getContext('2d', { alpha: true, desynchronized: true });
+          if(!ctx) return;
+          const W = skyCanvas.width, H = skyCanvas.height;
 
-        treePositions.forEach(pos => {
-            const tree = createTree(pos.x, pos.z, pos.s);
-            scene.add(tree);
-        });
+          // small clear with low alpha to avoid heavy redraw: draw additive sparkles only
+          const tw = clamp(state.twinkle, 0, 1);
+          if(tw < 0.02) return;
 
-        // ============== REALISTIC SNOW ==============
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          const n = Math.floor(120 * tw);
+          for(let i=0;i<n;i++){
+            const s = sky.stars[(Math.random() * sky.stars.length) | 0];
+            if(!s) continue;
+            const k = (Math.sin(t*0.001*s.tw + s.ph) * 0.5 + 0.5);
+            const a = (0.02 + 0.08 * tw) * k;
+            const rr = s.r * (1.4 + 2.0*k);
+            const gg = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, rr*3.4);
+            gg.addColorStop(0, `rgba(${s.tint[0]},${s.tint[1]},${s.tint[2]},${a})`);
+            gg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gg;
+            ctx.beginPath();
+            ctx.arc(s.x, s.y, rr*3.4, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.restore();
 
-        const snowCount = 4000;
-        const snowGeometry = new THREE.BufferGeometry();
-        const snowPositions = new Float32Array(snowCount * 3);
-        const snowVelocities = [];
-        const snowSizes = new Float32Array(snowCount);
-
-        for (let i = 0; i < snowCount; i++) {
-            snowPositions[i * 3] = (Math.random() - 0.5) * 180;
-            snowPositions[i * 3 + 1] = Math.random() * 100;
-            snowPositions[i * 3 + 2] = (Math.random() - 0.5) * 180;
-
-            snowVelocities.push({
-                x: (Math.random() - 0.5) * 0.015,
-                y: Math.random() * 0.04 + 0.015,
-                z: (Math.random() - 0.5) * 0.015,
-                wobble: Math.random() * Math.PI * 2,
-                wobbleSpeed: Math.random() * 0.015 + 0.005
-            });
-
-            snowSizes[i] = Math.random() * 4 + 1.5;
+          // Very light fade to prevent accumulation
+          ctx.save();
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.fillStyle = `rgba(0,0,0,${0.012 + 0.02*tw})`;
+          ctx.fillRect(0,0,W,H);
+          ctx.restore();
+        } catch(e){
+          console.error('drawTwinkle error', e);
         }
+      }
 
-        snowGeometry.setAttribute('position', new THREE.BufferAttribute(snowPositions, 3));
-        snowGeometry.setAttribute('size', new THREE.BufferAttribute(snowSizes, 1));
+      // -----------------------------
+      // Snow (depth particles)
+      // -----------------------------
+      const snow = {
+        flakes: [],
+        targetCount: 500,
+        wind: 0,
+        qualityFactor: 1,
+        needsRebuild: true
+      };
 
-        // Blue-tinted snow shader
-        const snowMaterial = new THREE.ShaderMaterial({
-            uniforms: {
-                color: { value: new THREE.Color(0xddeeff) }
-            },            vertexShader: `
-                attribute float size;
-                varying float vOpacity;
-                void main() {
-                    vOpacity = 0.4 + size * 0.12;
-                    vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-                    gl_PointSize = size * (180.0 / -mvPosition.z);
-                    gl_Position = projectionMatrix * mvPosition;
+      function computeSnowTarget(){
+        const tier = currentTier();
+        const W = snowCanvas.width, H = snowCanvas.height;
+        const base = tier.snowBase;
+        const density = clamp(state.snowDensity, 0, 1);
+        const areaScale = (W*H) / (1200*800*dpr*dpr);
+        let n = Math.floor(base * density * areaScale);
+        // Keep sane bounds
+        n = clamp(n, 0, 1400);
+        return n;
+      }
+
+      function buildSnow(force=false){
+        try{
+          const ctx = snowCanvas.getContext('2d', { alpha: true, desynchronized: true });
+          if(!ctx) return;
+
+          snow.targetCount = computeSnowTarget();
+          if(force || snow.flakes.length === 0){
+            snow.flakes = [];
+            for(let i=0;i<snow.targetCount;i++) snow.flakes.push(makeFlake(true));
+          } else {
+            // Adjust count smoothly
+            while(snow.flakes.length < snow.targetCount) snow.flakes.push(makeFlake(true));
+            while(snow.flakes.length > snow.targetCount) snow.flakes.pop();
+          }
+          snow.needsRebuild = false;
+        } catch(e){
+          console.error('buildSnow error', e);
+        }
+      }
+
+      function makeFlake(spawnAnywhere=false){
+        const W = snowCanvas.width, H = snowCanvas.height;
+        const z = Math.pow(Math.random(), 1.9); // 0 near, 1 far
+        const x = Math.random() * W;
+        const y = spawnAnywhere ? Math.random() * H : -rand(0, H*0.15);
+        const r = (1.4 + (1-z) * 3.6) * dpr;
+        const v = (0.45 + (1-z) * 2.2) * dpr;
+        const sway = (0.2 + Math.random()*0.9) * dpr;
+        const phase = Math.random() * Math.PI*2;
+        const drift = rand(-0.6, 0.6) * dpr;
+        const sparkle = Math.random();
+        return { x, y, z, r, v, sway, phase, drift, sparkle };
+      }
+
+      function stepSnow(t, dt){
+        try{
+          const ctx = snowCanvas.getContext('2d', { alpha: true, desynchronized: true });
+          if(!ctx) return;
+          const W = snowCanvas.width, H = snowCanvas.height;
+
+          ctx.setTransform(1,0,0,1,0,0);
+          // Motion blur-ish clear
+          ctx.globalCompositeOperation = 'source-over';
+          ctx.fillStyle = 'rgba(0,0,0,0.10)';
+          ctx.fillRect(0,0,W,H);
+
+          // Wind (slow)
+          const wind = Math.sin(t * 0.00022) * 0.65 + Math.sin(t * 0.000073) * 0.35;
+          snow.wind = wind;
+
+          ctx.globalCompositeOperation = 'screen';
+          for(let i=0;i<snow.flakes.length;i++){
+            const f = snow.flakes[i];
+            const depth = 1 - f.z;
+            const wob = Math.sin(t*0.0012 + f.phase) * f.sway;
+            const vx = (wind * (0.85 + depth*1.6) + f.drift) * (0.55 + depth*0.85);
+
+            f.x += vx * dt * 0.06;
+            f.y += f.v * dt * 0.08;
+
+            if(f.y > H + 10*dpr || f.x < -30*dpr || f.x > W + 30*dpr){
+              snow.flakes[i] = makeFlake(false);
+              continue;
+            }
+
+            const alpha = clamp(0.07 + depth*0.38, 0.06, 0.55);
+            const sparkle = (f.sparkle > 0.965) ? (0.15 + 0.2*Math.sin(t*0.01 + f.phase)) : 0;
+            const a = clamp(alpha + sparkle, 0, 0.65);
+
+            // Draw as soft radial blob
+            const x = f.x + wob;
+            const y = f.y;
+
+            const rr = f.r;
+            const g = ctx.createRadialGradient(x, y, 0, x, y, rr*3.2);
+            g.addColorStop(0, `rgba(255,255,255,${a})`);
+            g.addColorStop(0.35, `rgba(210,245,255,${a*0.35})`);
+            g.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = g;
+            ctx.beginPath();
+            ctx.arc(x, y, rr*3.2, 0, Math.PI*2);
+            ctx.fill();
+          }
+        } catch(e){
+          console.error('stepSnow error', e);
+        }
+      }
+
+      // -----------------------------
+      // Lake shimmer + cracks
+      // -----------------------------
+      const lake = {
+        cracks: null,
+        noiseSeeds: [],
+        needsRebuild: true
+      };
+
+      function buildLake(force=false){
+        try{
+          const ctx = lakeCanvas.getContext('2d', { alpha: true, desynchronized: true });
+          if(!ctx) return;
+          const W = lakeCanvas.width, H = lakeCanvas.height;
+
+          if(force || !lake.cracks){
+            // Pre-render crack lines onto an offscreen canvas
+            const off = document.createElement('canvas');
+            off.width = W;
+            off.height = H;
+            const octx = off.getContext('2d');
+            octx.clearRect(0,0,W,H);
+
+            // Generate a few branching polylines
+            const lines = 22;
+            for(let i=0;i<lines;i++){
+              const startX = rand(W*0.18, W*0.82);
+              const startY = rand(H*0.58, H*0.95);
+              const segs = 10 + (Math.random()*14|0);
+              let x = startX, y = startY;
+              let ang = rand(-Math.PI*0.95, -Math.PI*0.05);
+              let w = rand(0.35, 0.9) * dpr;
+
+              octx.beginPath();
+              octx.moveTo(x,y);
+              for(let s=0;s<segs;s++){
+                const step = rand(14, 46) * dpr;
+                ang += rand(-0.45, 0.45);
+                x += Math.cos(ang) * step;
+                y += Math.sin(ang) * step;
+                // constrain
+                x = clamp(x, -W*0.1, W*1.1);
+                y = clamp(y, -H*0.2, H*1.2);
+                octx.lineTo(x,y);
+
+                // occasional branch
+                if(Math.random() < 0.18){
+                  octx.save();
+                  octx.strokeStyle = `rgba(210,255,255,${rand(0.08,0.18)})`;
+                  octx.lineWidth = w * rand(0.6, 0.9);
+                  octx.shadowColor = 'rgba(120,230,255,0.25)';
+                  octx.shadowBlur = 10*dpr;
+                  octx.stroke();
+                  octx.restore();
+
+                  octx.beginPath();
+                  octx.moveTo(x,y);
                 }
-            `,
-            fragmentShader: `
-                uniform vec3 color;
-                varying float vOpacity;
-                void main() {
-                    float dist = length(gl_PointCoord - vec2(0.5));
-                    if (dist > 0.5) discard;
-                    float alpha = smoothstep(0.5, 0.1, dist) * vOpacity;
-                    gl_FragColor = vec4(color, alpha);
-                }
-            `,
-            transparent: true,
-            depthWrite: false,
-            blending: THREE.AdditiveBlending
+              }
+
+              octx.strokeStyle = `rgba(220,255,255,${rand(0.08,0.22)})`;
+              octx.lineWidth = w;
+              octx.lineCap = 'round';
+              octx.lineJoin = 'round';
+              octx.shadowColor = 'rgba(90,210,255,0.22)';
+              octx.shadowBlur = 14*dpr;
+              octx.stroke();
+            }
+
+            // Frosty micro-scratches
+            for(let i=0;i<260;i++){
+              const x1 = rand(W*0.15, W*0.85);
+              const y1 = rand(H*0.55, H*0.98);
+              const len = rand(10, 55)*dpr;
+              const ang = rand(-Math.PI, 0);
+              const x2 = x1 + Math.cos(ang)*len;
+              const y2 = y1 + Math.sin(ang)*len;
+              octx.strokeStyle = `rgba(200,245,255,${rand(0.02,0.05)})`;
+              octx.lineWidth = rand(0.25, 0.7)*dpr;
+              octx.beginPath();
+              octx.moveTo(x1,y1);
+              octx.lineTo(x2,y2);
+              octx.stroke();
+            }
+
+            lake.cracks = off;
+            lake.noiseSeeds = Array.from({length: 14}, () => ({
+              x: rand(0, W), y: rand(0, H),
+              r: rand(90, 210)*dpr,
+              a: rand(0.03, 0.09)
+            }));
+          }
+
+          lake.needsRebuild = false;
+        } catch(e){
+          console.error('buildLake error', e);
+        }
+      }
+
+      function drawLake(t){
+        try{
+          const ctx = lakeCanvas.getContext('2d', { alpha: true, desynchronized: true });
+          if(!ctx) return;
+          const W = lakeCanvas.width, H = lakeCanvas.height;
+          const shine = clamp(state.iceShine, 0, 1);
+
+          ctx.setTransform(1,0,0,1,0,0);
+          ctx.clearRect(0,0,W,H);
+
+          // Base ice glow
+          const g = ctx.createRadialGradient(W*0.5, H*0.70, 0, W*0.5, H*0.70, Math.max(W,H)*0.62);
+          g.addColorStop(0, `rgba(20,190,255,${0.26*shine})`);
+          g.addColorStop(0.22, `rgba(15,140,255,${0.18*shine})`);
+          g.addColorStop(0.55, 'rgba(0,0,0,0)');
+          ctx.fillStyle = g;
+          ctx.fillRect(0,0,W,H);
+
+          // Animated shimmer "caustics" via layered waves
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          const time = t * 0.001;
+          const bands = 24;
+          for(let i=0;i<bands;i++){
+            const yy = H*(0.58 + i*(0.44/(bands-1)));
+            const amp = (6 + 10*shine) * dpr;
+            const freq = 0.012 + i*0.0007;
+            const speed = 0.75 + i*0.05;
+            const phase = time*speed + i*1.7;
+
+            ctx.beginPath();
+            const x0 = 0;
+            const y0 = yy + Math.sin(phase)*amp*0.15;
+            ctx.moveTo(x0, y0);
+
+            for(let x=0; x<=W; x+= 12*dpr){
+              const y = yy
+                + Math.sin(x*freq + phase) * amp
+                + Math.sin(x*(freq*1.8) + phase*1.35) * amp*0.35;
+              ctx.lineTo(x, y);
+            }
+
+            const a = (0.012 + shine*0.03) * (1 - i/bands);
+            ctx.strokeStyle = `rgba(210,250,255,${a})`;
+            ctx.lineWidth = (1.0 + 1.2*shine) * dpr;
+            ctx.shadowColor = `rgba(125,230,255,${0.12 + shine*0.18})`;
+            ctx.shadowBlur = 10*dpr;
+            ctx.stroke();
+          }
+          ctx.restore();
+
+          // Soft icy fog patches
+          ctx.save();
+          ctx.globalCompositeOperation = 'screen';
+          for(let i=0;i<lake.noiseSeeds.length;i++){
+            const s = lake.noiseSeeds[i];
+            const ox = Math.sin(time*0.55 + i*1.9) * 14*dpr;
+            const oy = Math.cos(time*0.43 + i*1.3) * 10*dpr;
+            const gg = ctx.createRadialGradient(s.x+ox, s.y+oy, 0, s.x+ox, s.y+oy, s.r);
+            gg.addColorStop(0, `rgba(210,255,255,${s.a*shine})`);
+            gg.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gg;
+            ctx.beginPath();
+            ctx.arc(s.x+ox, s.y+oy, s.r, 0, Math.PI*2);
+            ctx.fill();
+          }
+          ctx.restore();
+
+          // Cracks overlay
+          if(lake.cracks){
+            ctx.save();
+            ctx.globalCompositeOperation = 'screen';
+            // gentle pulsation
+            const pulse = 0.85 + 0.15*Math.sin(t*0.0012);
+            ctx.globalAlpha = (0.75 + 0.25*shine) * pulse;
+            ctx.drawImage(lake.cracks, 0, 0);
+            ctx.restore();
+          }
+
+          // Edge darkening for depth
+          ctx.save();
+          ctx.globalCompositeOperation = 'multiply';
+          const vg = ctx.createRadialGradient(W*0.5, H*0.70, Math.min(W,H)*0.12, W*0.5, H*0.70, Math.min(W,H)*0.58);
+          vg.addColorStop(0, 'rgba(0,0,0,0)');
+          vg.addColorStop(1, 'rgba(0,0,0,0.55)');
+          ctx.fillStyle = vg;
+          ctx.fillRect(0,0,W,H);
+          ctx.restore();
+        } catch(e){
+          console.error('drawLake error', e);
+        }
+      }
+
+      // -----------------------------
+      // Parallax / tilt
+      // -----------------------------
+      let targetPX = 0, targetPY = 0, currentPX = 0, currentPY = 0;
+      let targetTX = 0, targetTY = 0, currentTX = 0, currentTY = 0;
+
+      function applyParallax(){
+        const strength = prefersReducedMotion ? 0 : state.parallaxStrength;
+        currentPX = lerp(currentPX, targetPX, 0.08);
+        currentPY = lerp(currentPY, targetPY, 0.08);
+        currentTX = lerp(currentTX, targetTX, 0.08);
+        currentTY = lerp(currentTY, targetTY, 0.08);
+
+        const px = currentPX * 18 * strength;
+        const py = currentPY * 18 * strength;
+
+        setCSSVar('--parallaxX', `${px.toFixed(2)}px`);
+        setCSSVar('--parallaxY', `${py.toFixed(2)}px`);
+
+        const tiltX = (-currentPY * 3.2 * strength);
+        const tiltY = (currentPX * 4.0 * strength);
+        setCSSVar('--tiltX', `${tiltX.toFixed(3)}deg`);
+        setCSSVar('--tiltY', `${tiltY.toFixed(3)}deg`);
+      }
+
+      function onPointerMove(e){
+        const rect = document.body.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width;
+        const y = (e.clientY - rect.top) / rect.height;
+        targetPX = (x - 0.5) * 2;
+        targetPY = (y - 0.5) * 2;
+        targetTX = targetPY;
+        targetTY = targetPX;
+      }
+
+      // Device orientation (optional)
+      let orientEnabled = false;
+      function handleOrientation(ev){
+        if(prefersReducedMotion) return;
+        // gamma: left/right, beta: front/back
+        const g = ev.gamma;
+        const b = ev.beta;
+        if(typeof g !== 'number' || typeof b !== 'number') return;
+        const px = clamp(g / 18, -1, 1);
+        const py = clamp((b - 10) / 18, -1, 1);
+        targetPX = lerp(targetPX, px, 0.35);
+        targetPY = lerp(targetPY, py, 0.35);
+        targetTX = targetPY;
+        targetTY = targetPX;
+        orientEnabled = true;
+      }
+
+      async function tryEnableOrientation(){
+        try{
+          if(!('DeviceOrientationEvent' in window)) return;
+          // iOS requires permission
+          if(typeof DeviceOrientationEvent.requestPermission === 'function'){
+            const res = await DeviceOrientationEvent.requestPermission();
+            if(res !== 'granted') return;
+          }
+          window.addEventListener('deviceorientation', handleOrientation, { passive:true });
+        } catch(e){
+          // ignore
+        }
+      }
+
+      // -----------------------------
+      // UI interactions
+      // -----------------------------
+      function setEntered(on){
+        if(on) app.classList.add('entered');
+        else app.classList.remove('entered');
+      }
+
+      function enterPortal(){
+        setEntered(true);
+      }
+      function leavePortal(){
+        setEntered(false);
+      }
+
+      enterBtn.addEventListener('click', enterPortal);
+      enterBtn2.addEventListener('click', enterPortal);
+      backBtn.addEventListener('click', leavePortal);
+
+      window.addEventListener('keydown', (e) => {
+        if(e.code === 'Space' || e.code === 'Enter'){
+          // Avoid typing in select
+          const tag = (document.activeElement && document.activeElement.tagName) ? document.activeElement.tagName.toLowerCase() : '';
+          if(tag === 'input' || tag === 'select' || tag === 'textarea' || tag === 'button') return;
+          e.preventDefault();
+          if(app.classList.contains('entered')) leavePortal();
+          else enterPortal();
+        } else if(e.code === 'Escape'){
+          if(app.classList.contains('entered')) leavePortal();
+        }
+      });
+
+      collapseBtn.addEventListener('click', () => {
+        const expanded = collapseBtn.getAttribute('aria-expanded') === 'true';
+        collapseBtn.setAttribute('aria-expanded', String(!expanded));
+        panelContent.style.display = expanded ? 'none' : 'block';
+        collapseBtn.textContent = expanded ? 'إظهار' : 'إخفاء';
+      });
+
+      // Ranges
+      function refreshUI(){
+        qualityVal.textContent = state.qualityMode === 'auto' ? 'Auto' : (state.qualityMode[0].toUpperCase() + state.qualityMode.slice(1));
+        parallaxVal.textContent = `${Math.round(state.parallaxStrength * 100)}%`;
+        snowDensityVal.textContent = `${Math.round(state.snowDensity * 100)}%`;
+        starDensityVal.textContent = `${Math.round(state.starDensity * 100)}%`;
+        twinkleVal.textContent = `${Math.round(state.twinkle * 100)}%`;
+        iceVal.textContent = `${Math.round(state.iceShine * 100)}%`;
+
+        autoVal.textContent = state.qualityMode === 'auto' ? state.autoTier : '—';
+        snowVal.textContent = String(snow.targetCount);
+      }
+
+      parallaxRange.addEventListener('input', () => {
+        state.parallaxStrength = clamp(parseInt(parallaxRange.value,10)/100, 0, 1);
+        refreshUI();
+      });
+      snowRange.addEventListener('input', () => {
+        state.snowDensity = clamp(parseInt(snowRange.value,10)/100, 0, 1);
+        buildSnow(false);
+        refreshUI();
+      });
+      starsRange.addEventListener('input', () => {
+        state.starDensity = clamp(parseInt(starsRange.value,10)/100, 0, 1);
+        buildSky(true);
+        refreshUI();
+      });
+      twinkleRange.addEventListener('input', () => {
+        state.twinkle = clamp(parseInt(twinkleRange.value,10)/100, 0, 1);
+        refreshUI();
+      });
+      iceRange.addEventListener('input', () => {
+        state.iceShine = clamp(parseInt(iceRange.value,10)/100, 0, 1);
+        refreshUI();
+      });
+
+      qualitySelect.addEventListener('change', () => {
+        state.qualityMode = qualitySelect.value;
+        resizeAll();
+        refreshUI();
+      });
+
+      resetBtn.addEventListener('click', () => {
+        state.qualityMode = 'auto';
+        state.parallaxStrength = 0.65;
+        state.snowDensity = 0.70;
+        state.starDensity = 0.60;
+        state.twinkle = 0.35;
+        state.iceShine = 0.55;
+
+        qualitySelect.value = 'auto';
+        parallaxRange.value = 65;
+        snowRange.value = 70;
+        starsRange.value = 60;
+        twinkleRange.value = 35;
+        iceRange.value = 55;
+
+        resizeAll();
+        refreshUI();
+      });
+
+      clearBgBtn.addEventListener('click', () => {
+        bgImage.style.backgroundImage = '';
+        bgImage.classList.remove('on');
+        state.hasBgImage = false;
+      });
+
+      // Background image upload (exact look)
+      function setBackgroundFromFile(file){
+        try{
+          if(!file || !file.type || !file.type.startsWith('image/')) return;
+          const reader = new FileReader();
+          reader.onload = () => {
+            bgImage.style.backgroundImage = `url(${reader.result})`;
+            bgImage.classList.add('on');
+            state.hasBgImage = true;
+          };
+          reader.readAsDataURL(file);
+        } catch(e){
+          console.error('setBackgroundFromFile error', e);
+        }
+      }
+
+      bgFile.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        setBackgroundFromFile(file);
+      });
+
+      // Drag & drop image onto panel
+      ;(() => {
+        let dragCounter = 0;
+        function isImageDrag(ev){
+          const dt = ev.dataTransfer;
+          if(!dt) return false;
+          if(dt.types && Array.from(dt.types).includes('Files')) return true;
+          return false;
+        }
+        window.addEventListener('dragenter', (ev) => {
+          if(!isImageDrag(ev)) return;
+          dragCounter++;
+          panel.classList.add('drag');
+          dropZone.setAttribute('aria-hidden', 'false');
+          ev.preventDefault();
         });
+        window.addEventListener('dragleave', (ev) => {
+          if(!isImageDrag(ev)) return;
+          dragCounter = Math.max(0, dragCounter - 1);
+          if(dragCounter === 0){
+            panel.classList.remove('drag');
+            dropZone.setAttribute('aria-hidden', 'true');
+          }
+        });
+        window.addEventListener('dragover', (ev) => {
+          if(!isImageDrag(ev)) return;
+          ev.preventDefault();
+        });
+        window.addEventListener('drop', (ev) => {
+          if(!isImageDrag(ev)) return;
+          ev.preventDefault();
+          dragCounter = 0;
+          panel.classList.remove('drag');
+          dropZone.setAttribute('aria-hidden', 'true');
+          const file = ev.dataTransfer.files && ev.dataTransfer.files[0];
+          setBackgroundFromFile(file);
+        });
+      })();
 
-        const snowParticles = new THREE.Points(snowGeometry, snowMaterial);
-        scene.add(snowParticles);
+      // -----------------------------
+      // Audio (wind ambience) - optional
+      // -----------------------------
+      let audioCtx = null;
+      let noiseNode = null;
+      let windGain = null;
+      let filter1 = null;
+      let filter2 = null;
+      let lfo = null, lfoGain = null;
 
-        // ============== CLOUDS ==============
+      function createNoiseBuffer(ctx){
+        const seconds = 2.2;
+        const rate = ctx.sampleRate;
+        const len = Math.floor(seconds * rate);
+        const buf = ctx.createBuffer(1, len, rate);
+        const data = buf.getChannelData(0);
+        for(let i=0;i<len;i++){
+          // pink-ish noise approximation by filtering white in time (simple)
+          const w = (Math.random()*2-1);
+          data[i] = w;
+        }
+        return buf;
+      }
 
-        function createCloud(x, y, z, scale = 1) {
-            const cloudGroup = new THREE.Group();
-            const cloudMaterial = new THREE.MeshStandardMaterial({
-                color: 0x1a2540,
-                transparent: true,
-                opacity: 0.75,
-                roughness: 1
-            });
+      function startAudio(){
+        try{
+          if(state.audioOn) return;
+          if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
-            const puffs = Math.floor(Math.random() * 6) + 6;
-            for (let i = 0; i < puffs; i++) {
-                const puffGeometry = new THREE.SphereGeometry(
-                    (Math.random() * 6 + 4) * scale,
-                    16,
-                    16
-                );
-                const puff = new THREE.Mesh(puffGeometry, cloudMaterial);
-                puff.position.set(
-                    (Math.random() - 0.5) * 18 * scale,
-                    (Math.random() - 0.5) * 4 * scale,
-                    (Math.random() - 0.5) * 10 * scale
-                );
-                puff.scale.y = 0.5;
-                cloudGroup.add(puff);
-            }
+          // Noise source (looped)
+          const src = audioCtx.createBufferSource();
+          src.buffer = createNoiseBuffer(audioCtx);
+          src.loop = true;
 
-            cloudGroup.position.set(x, y, z);
-            return cloudGroup;
+          // Filters to make it "wind"
+          filter1 = audioCtx.createBiquadFilter();
+          filter1.type = 'lowpass';
+          filter1.frequency.value = 650;
+          filter1.Q.value = 0.9;
+
+          filter2 = audioCtx.createBiquadFilter();
+          filter2.type = 'highpass';
+          filter2.frequency.value = 40;
+          filter2.Q.value = 0.7;
+
+          windGain = audioCtx.createGain();
+          windGain.gain.value = 0.0;
+
+          // LFO for gusts
+          lfo = audioCtx.createOscillator();
+          lfo.type = 'sine';
+          lfo.frequency.value = 0.08;
+
+          lfoGain = audioCtx.createGain();
+          lfoGain.gain.value = 0.24;
+
+          lfo.connect(lfoGain);
+          lfoGain.connect(windGain.gain);
+
+          src.connect(filter1);
+          filter1.connect(filter2);
+          filter2.connect(windGain);
+          windGain.connect(audioCtx.destination);
+
+          src.start();
+          lfo.start();
+
+          // Fade in
+          const t0 = audioCtx.currentTime;
+          windGain.gain.setValueAtTime(0.0, t0);
+          windGain.gain.linearRampToValueAtTime(0.22, t0 + 1.2);
+
+          noiseNode = src;
+          state.audioOn = true;
+          toggleSoundBtn.textContent = 'الصوت: تشغيل';
+        } catch(e){
+          console.error('startAudio error', e);
+        }
+      }
+
+      function stopAudio(){
+        try{
+          if(!state.audioOn) return;
+          if(!audioCtx) return;
+
+          const t0 = audioCtx.currentTime;
+          if(windGain){
+            windGain.gain.cancelScheduledValues(t0);
+            windGain.gain.setValueAtTime(windGain.gain.value, t0);
+            windGain.gain.linearRampToValueAtTime(0.0, t0 + 0.35);
+          }
+          setTimeout(() => {
+            try{
+              if(noiseNode) noiseNode.stop();
+              if(lfo) lfo.stop();
+              noiseNode = null;
+              lfo = null;
+              lfoGain = null;
+              windGain = null;
+              filter1 = null;
+              filter2 = null;
+            } catch(_) {}
+          }, 450);
+
+          state.audioOn = false;
+          toggleSoundBtn.textContent = 'الصوت: إيقاف';
+        } catch(e){
+          console.error('stopAudio error', e);
+        }
+      }
+
+      toggleSoundBtn.addEventListener('click', async () => {
+        try{
+          if(!state.audioOn){
+            // user gesture - safe to start context
+            await tryEnableOrientation(); // bonus: ask for motion permission once user clicks
+            startAudio();
+          } else {
+            stopAudio();
+          }
+        } catch(e){
+          console.error('toggleSound error', e);
+        }
+      });
+
+      // -----------------------------
+      // Performance / Auto quality
+      // -----------------------------
+      const perf = {
+        lastT: now(),
+        fpsEMA: 60,
+        frame: 0,
+        lastAdjustT: now(),
+      };
+
+      function autoAdjustQuality(t){
+        // adjust every ~1.2s
+        if(state.qualityMode !== 'auto') return;
+        if(t - perf.lastAdjustT < 1200) return;
+        perf.lastAdjustT = t;
+
+        const fps = perf.fpsEMA;
+
+        // Decide tier
+        let next = state.autoTier;
+        if(fps > 54) next = 'High';
+        else if(fps > 40) next = 'Medium';
+        else next = 'Low';
+
+        if(next !== state.autoTier){
+          state.autoTier = next;
+          // re-resize to apply DPR cap + rebuild
+          resizeAll();
+        } else {
+          // Still adjust snow count gradually (no resize)
+          buildSnow(false);
+        }
+      }
+
+      // -----------------------------
+      // Main loop
+      // -----------------------------
+      function tick(t){
+        const dt = Math.min(40, t - perf.lastT);
+        perf.lastT = t;
+
+        // fps EMA
+        const fps = 1000 / Math.max(1, dt);
+        perf.fpsEMA = perf.fpsEMA * 0.92 + fps * 0.08;
+
+        // Update CSS parallax
+        applyParallax();
+
+        // Sky twinkle + snow + lake
+        if(!sky.needsRebuild) drawTwinkle(t);
+        if(!snow.needsRebuild) stepSnow(t, dt);
+        if(!lake.needsRebuild) drawLake(t);
+
+        // Auto adjustment
+        autoAdjustQuality(t);
+
+        // UI stats
+        if((perf.frame++ % 12) === 0){
+          fpsVal.textContent = String(Math.round(perf.fpsEMA));
+          autoVal.textContent = state.qualityMode === 'auto' ? state.autoTier : '—';
+          snowVal.textContent = String(snow.targetCount);
         }
 
-        const clouds = [];
-        for (let i = 0; i < 10; i++) {
-            const cloud = createCloud(
-                (Math.random() - 0.5) * 180,
-                Math.random() * 25 + 45,
-                (Math.random() - 0.5) * 100 - 40,
-                Math.random() * 0.5 + 0.8
-            );
-            clouds.push(cloud);
-            scene.add(cloud);
-        }
+        requestAnimationFrame(tick);
+      }
 
-        // ============== LIGHTNING ==============
+      // -----------------------------
+      // Init
+      // -----------------------------
+      function init(){
+        // Init UI values
+        refreshUI();
 
-        const lightningFlash = document.getElementById('lightning-flash');
+        // Pointer parallax
+        window.addEventListener('pointermove', onPointerMove, { passive:true });
 
-        function triggerLightning() {
-            const intensity = Math.random() * 4 + 3;
-            lightningLight.intensity = intensity;
-            lightningFlash.classList.add('active');
+        // Start with subtle idle motion if no pointer yet
+        let idleT = 0;
+        const idle = () => {
+          if(orientEnabled) return;
+          idleT += 0.012;
+          // only if user not moving pointer recently (we don't track, keep tiny)
+          targetPX = lerp(targetPX, Math.sin(idleT)*0.18, 0.02);
+          targetPY = lerp(targetPY, Math.cos(idleT*0.9)*0.12, 0.02);
+          targetTX = targetPY;
+          targetTY = targetPX;
+          requestAnimationFrame(idle);
+        };
+        requestAnimationFrame(idle);
 
-            setTimeout(() => {
-                lightningLight.intensity = 0;
-                lightningFlash.classList.remove('active');
-            }, 60);
-
-            if (Math.random() > 0.4) {
-                setTimeout(() => {
-                    lightningLight.intensity = intensity * 0.6;
-                    lightningFlash.classList.add('active');
-                    setTimeout(() => {
-                        lightningLight.intensity = 0;
-                        lightningFlash.classList.remove('active');
-                    }, 40);
-                }, 120);
-            }
-
-            setTimeout(triggerLightning, Math.random() * 10000 + 5000);
-        }
-
-        setTimeout(triggerLightning, 2500);
-
-        // ============== ANIMATION ==============
-
-        let time = 0;
-
-        function animate() {
-            requestAnimationFrame(animate);
-            time += 0.008;
-
-            // Animate snow
-            const positions = snowGeometry.attributes.position.array;
-            for (let i = 0; i < snowCount; i++) {
-                const vel = snowVelocities[i];
-                vel.wobble += vel.wobbleSpeed;
-                
-                positions[i * 3] += Math.sin(vel.wobble) * 0.018 + vel.x;
-                positions[i * 3 + 1] -= vel.y;
-                positions[i * 3 + 2] += Math.cos(vel.wobble * 0.7) * 0.012 + vel.z;
-
-                if (positions[i * 3 + 1] < 0) {
-                    positions[i * 3] = (Math.random() - 0.5) * 180;
-                    positions[i * 3 + 1] = 100;
-                    positions[i * 3 + 2] = (Math.random() - 0.5) * 180;
-                }
-            }
-            snowGeometry.attributes.position.needsUpdate = true;
-
-            // Animate clouds
-            clouds.forEach((cloud, i) => {
-                cloud.position.x += 0.008 * (i % 2 === 0 ? 1 : -1);
-                if (cloud.position.x > 100) cloud.position.x = -100;
-                if (cloud.position.x < -100) cloud.position.x = 100;
-            });
-
-            // Animate blue point lights
-            blueGlow1.intensity = 0.7 + Math.sin(time * 0.5) * 0.2;
-            blueGlow2.intensity = 0.5 + Math.cos(time * 0.4) * 0.15;
-
-            // Subtle camera sway
-            camera.position.x = Math.sin(time * 0.08) * 0.8;
-            camera.position.y = 10 + Math.sin(time * 0.12) * 0.4;
-
-            renderer.render(scene, camera);
-        }
-
-        animate();
-
-        // ============== RESIZE ==============
-
+        // Resize
         window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
+          // throttle via rAF
+          requestAnimationFrame(resizeAll);
+        }, { passive:true });
 
-        // ============== INTERACTIONS ==============
+        resizeAll();
 
-        document.querySelector('.main-title').addEventListener('click', () => {
-            lightningLight.intensity = 6;
-            lightningFlash.classList.add('active');
+        // Encourage enabling motion on first ENTER click too
+        const maybeEnableMotion = () => { tryEnableOrientation(); };
+        enterBtn.addEventListener('pointerdown', maybeEnableMotion, { once:true });
+        enterBtn2.addEventListener('pointerdown', maybeEnableMotion, { once:true });
 
-            setTimeout(() => {
-                lightningLight.intensity = 0;
-                lightningFlash.classList.remove('active');
-            }, 200);
-        });
-    </script>
+        requestAnimationFrame(tick);
+      }
+
+      init();
+    });
+  </script>
 </body>
 </html>
